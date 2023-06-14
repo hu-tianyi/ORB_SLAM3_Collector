@@ -69,6 +69,8 @@ build/
 
 lib/
 
+datasets/
+
 cmake_modules/
 cmake-build-debug/
 
