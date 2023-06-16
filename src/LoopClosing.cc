@@ -86,6 +86,12 @@ void LoopClosing::SetLocalMapper(LocalMapping *pLocalMapper)
     mpLocalMapper=pLocalMapper;
 }
 
+//Added for data collector
+void LoopClosing::SetDataCollector(DataCollecting *pDataCollector)
+{
+    mpDataCollector=pDataCollector;
+}
+
 
 void LoopClosing::Run()
 {

@@ -63,6 +63,12 @@ void LocalMapping::SetTracker(Tracking *pTracker)
     mpTracker=pTracker;
 }
 
+//Added for data collector
+void LocalMapping::SetDataCollector(DataCollecting *pDataCollector)
+{
+    mpDataCollector=pDataCollector;
+}
+
 void LocalMapping::Run()
 {
     mbFinished = false;

@@ -49,6 +49,8 @@ public:
 
     void SetTracker(Tracking* pTracker);
 
+    void SetDataCollector(DataCollecting *pDataCollector);
+
     // Main function
     void Run();
 
@@ -161,6 +163,8 @@ protected:
 
     LoopClosing* mpLoopCloser;
     Tracking* mpTracker;
+    //Added for data collector
+    DataCollecting* mpDataCollector;
 
     std::list<KeyFrame*> mlNewKeyFrames;
 

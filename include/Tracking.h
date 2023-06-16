@@ -78,6 +78,9 @@ public:
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopClosing(LoopClosing* pLoopClosing);
+    //Added for data collector
+    void SetDataCollector(DataCollecting *pDataCollector);
+
     void SetViewer(Viewer* pViewer);
     void SetStepByStep(bool bSet);
     bool GetStepByStep();
@@ -257,6 +260,8 @@ protected:
     //Other Thread Pointers
     LocalMapping* mpLocalMapper;
     LoopClosing* mpLoopClosing;
+    //Added for data collector
+    DataCollecting* mpDataCollector;
 
     //ORB
     ORBextractor* mpORBextractorLeft, *mpORBextractorRight;

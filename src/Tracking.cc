@@ -1434,6 +1434,12 @@ void Tracking::SetLoopClosing(LoopClosing *pLoopClosing)
     mpLoopClosing=pLoopClosing;
 }
 
+//Added for data collector
+void Tracking::SetDataCollector(DataCollecting *pDataCollector)
+{
+    mpDataCollector=pDataCollector;
+}
+
 void Tracking::SetViewer(Viewer *pViewer)
 {
     mpViewer=pViewer;

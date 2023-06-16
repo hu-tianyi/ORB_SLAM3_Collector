@@ -59,6 +59,9 @@ public:
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
 
+    //Added for data collector
+    void SetDataCollector(DataCollecting *pDataCollector);
+
     // Main function
     void Run();
 
@@ -164,6 +167,9 @@ protected:
     ORBVocabulary* mpORBVocabulary;
 
     LocalMapping *mpLocalMapper;
+
+    //Added for data collector
+    DataCollecting* mpDataCollector;
 
     std::list<KeyFrame*> mlpLoopKeyFrameQueue;
 
