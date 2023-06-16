@@ -37,6 +37,9 @@ namespace ORB_SLAM3
 class System;
 class Tracking;
 class LoopClosing;
+//Added for data collection
+class DataCollecting;
+
 class Atlas;
 
 class LocalMapping

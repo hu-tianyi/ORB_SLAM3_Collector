@@ -13,6 +13,7 @@ namespace  ORB_SLAM3
 {
 class System;
 class Tracking;
+class LocalMapping;
 class LoopClosing;
 
 class DataCollecting

@@ -51,6 +51,9 @@ class FrameDrawer;
 class Atlas;
 class LocalMapping;
 class LoopClosing;
+//Added for data collection
+class DataCollecting;
+
 class System;
 class Settings;
 

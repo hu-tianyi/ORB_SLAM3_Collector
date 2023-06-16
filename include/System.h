@@ -79,6 +79,9 @@ class Atlas;
 class Tracking;
 class LocalMapping;
 class LoopClosing;
+//Added for data collection
+class DataCollecting;
+
 class Settings;
 
 class System
@@ -240,7 +243,7 @@ private:
     std::thread* mptLoopClosing;
     std::thread* mptViewer;
     //Added for DataCollector
-    std::thread* mptDataCollector;
+    std::thread* mptDataCollecting;
 
     // Reset flag
     std::mutex mMutexReset;

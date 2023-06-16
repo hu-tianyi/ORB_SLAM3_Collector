@@ -39,6 +39,9 @@ namespace ORB_SLAM3
 
 class Tracking;
 class LocalMapping;
+//Added for data collection
+class DataCollecting;
+
 class KeyFrameDatabase;
 class Map;
 
