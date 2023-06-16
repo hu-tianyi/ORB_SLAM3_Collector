@@ -46,6 +46,8 @@ void DataCollecting::Run()
     while(1)
     {
         //TODO
+        usleep(1*1000*1000);
+        cout << "Testing Data Collection." << endl;
 
     }
 
