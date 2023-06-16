@@ -39,6 +39,7 @@
 #include "Viewer.h"
 #include "ImuTypes.h"
 #include "Settings.h"
+#include "DataCollecting.h"
 
 
 namespace ORB_SLAM3

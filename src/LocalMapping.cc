@@ -19,6 +19,8 @@
 
 #include "LocalMapping.h"
 #include "LoopClosing.h"
+#include "DataCollecting.h"
+
 #include "ORBmatcher.h"
 #include "Optimizer.h"
 #include "Converter.h"

@@ -28,6 +28,7 @@
 #include "Atlas.h"
 #include "LocalMapping.h"
 #include "LoopClosing.h"
+#include "DataCollecting.h"
 #include "Frame.h"
 #include "ORBVocabulary.h"
 #include "KeyFrameDatabase.h"

@@ -24,6 +24,7 @@
 #include "Atlas.h"
 #include "LoopClosing.h"
 #include "Tracking.h"
+#include "DataCollecting.h"
 #include "KeyFrameDatabase.h"
 #include "Settings.h"
 
