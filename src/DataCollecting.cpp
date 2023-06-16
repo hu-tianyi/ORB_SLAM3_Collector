@@ -17,19 +17,20 @@ DataCollecting::DataCollecting(System* pSys, Atlas *pAtlas, const float bMonocul
 
 }
 
-void DataCollecting::SetLoopCloser(LoopClosing* pLoopCloser)
-{
-    mpLoopCloser = pLoopCloser;
-}
 
 void DataCollecting::SetTracker(Tracking *pTracker)
 {
-    mpTracker=pTracker;
+    mpTracker = pTracker;
 }
 
 void DataCollecting::SetLocalMapper(LocalMapping *pLocalMapper)
 {
-    mpLocalMapper=pLocalMapper;
+    mpLocalMapper = pLocalMapper;
+}
+
+void DataCollecting::SetLoopCloser(LoopClosing *pLoopCloser)
+{
+    mpLoopCloser = pLoopCloser;
 }
 
 
@@ -44,11 +45,17 @@ void DataCollecting::Run()
 
     while(1)
     {
+        //TODO
 
     }
 
 }
 
+void DataCollecting::Release()
+{
+    // TODO
+}
 
 
+// End of the ORBSLAM3 namespace
 }

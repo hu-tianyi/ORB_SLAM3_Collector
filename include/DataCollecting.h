@@ -22,11 +22,16 @@ public:
 
     void SetTracker(Tracking* pTracker);
 
-    void SetLocalMapper(LocalMapping *pLocalMapper);
+    void SetLocalMapper(LocalMapping* pLocalMapper);
 
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
     void InitializeCSVLogger();
+
+    // Main function
+    void Run();
+
+    void Release();
 
 protected:
 
@@ -35,9 +40,11 @@ protected:
     bool mbMonocular;
     bool mbInertial;
 
+    bool mbFinished;
+
     // member pointers to the three main modules
     Tracking* mpTracker;
-    LocalMapping mpLocalMapper;
+    LocalMapping* mpLocalMapper;
     LoopClosing* mpLoopCloser;
 
 };
