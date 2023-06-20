@@ -1587,6 +1587,12 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
             cvtColor(mImGray,mImGray,cv::COLOR_BGRA2GRAY);
     }
 
+
+    // Collect image pixel
+    // After the tracking module convert the RGB(D) image to grayscale image
+    // Copy it to the data collector module
+    mpDataCollector->CollectImagePixel(mImGray);
+
     if (mSensor == System::MONOCULAR)
     {
         if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET ||(lastID - initID) < mMaxFrames)
@@ -1616,6 +1622,11 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
 
     lastID = mCurrentFrame.mnId;
     Track();
+
+    // Collect the current frame
+    // After the tracking module run the "Track()" method
+    // Copy it to the data collector module
+    mpDataCollector->CollectCurrentFrame(mCurrentFrame);
 
     return mCurrentFrame.GetPose();
 }
@@ -1952,6 +1963,9 @@ void Tracking::Track()
                 {
                     Verbose::PrintMess("TRACK: Track with respect to the reference KF ", Verbose::VERBOSITY_DEBUG);
                     bOK = TrackReferenceKeyFrame();
+
+                    // Data Collection: Collect Track Mode - Reference Key Frame
+                    mpDataCollector->CollectCurrentFrameTrackMode(1);
                 }
                 else
                 {
@@ -1959,6 +1973,9 @@ void Tracking::Track()
                     bOK = TrackWithMotionModel();
                     if(!bOK)
                         bOK = TrackReferenceKeyFrame();
+                        
+                        // Data Collection: Collect Track Mode - Motion Model
+                        mpDataCollector->CollectCurrentFrameTrackMode(0);
                 }
 
 
@@ -2015,6 +2032,9 @@ void Tracking::Track()
                             Verbose::PrintMess("Track Lost...", Verbose::VERBOSITY_NORMAL);
                             bOK=false;
                         }
+
+                        // Data Collection: Collect Track Mode - Relocalization
+                        mpDataCollector->CollectCurrentFrameTrackMode(2);
                     }
                 }
                 else if (mState == LOST)
@@ -2972,6 +2992,10 @@ bool Tracking::TrackLocalMap()
                 aux2++;
         }
 
+    // Data Collection: Collect features before Pose Optimization
+    mpDataCollector->CollectCurrentFramePrePOKeyMapLoss(aux1);
+    mpDataCollector->CollectCurrentFramePrePOOutlier(aux2);
+
     int inliers;
     if (!mpAtlas->isImuInitialized())
         Optimizer::PoseOptimization(&mCurrentFrame);
@@ -2995,6 +3019,9 @@ bool Tracking::TrackLocalMap()
                 Verbose::PrintMess("TLM: PoseInertialOptimizationLastKeyFrame ", Verbose::VERBOSITY_DEBUG);
                 inliers = Optimizer::PoseInertialOptimizationLastKeyFrame(&mCurrentFrame); // , !mpLastKeyFrame->GetMap()->GetIniertialBA1());
             }
+
+            // Data Collection: Collect features before Pose Optimization
+            mpDataCollector->CollectCurrentFrameInlier(inliers);
         }
     }
 
@@ -3006,6 +3033,10 @@ bool Tracking::TrackLocalMap()
             if(mCurrentFrame.mvbOutlier[i])
                 aux2++;
         }
+
+    // Data Collection: Collect features before Pose Optimization
+    mpDataCollector->CollectCurrentFramePostPOKeyMapLoss(aux1);
+    mpDataCollector->CollectCurrentFramePostPOOutlier(aux2);
 
     mnMatchesInliers = 0;
 
@@ -3029,6 +3060,8 @@ bool Tracking::TrackLocalMap()
                 mCurrentFrame.mvpMapPoints[i] = static_cast<MapPoint*>(NULL);
         }
     }
+
+    mpDataCollector->CollectCurrentFrameMatchedInlier(mnMatchesInliers);
 
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
