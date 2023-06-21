@@ -14,6 +14,20 @@ namespace ORB_SLAM3
 DataCollecting::DataCollecting(System* pSys, Atlas *pAtlas, const float bMonocular, bool bInertial, const string &_strSeqName):
         mpSystem(pSys), mbMonocular(bMonocular), mbInertial(bInertial)
 {
+    //mbMonocular = bMonocular;
+    //mbInertial = bInertial;
+    //mpSystem = pSys;
+    mpAtlas = pAtlas;
+    msSeqName = _strSeqName;
+
+    mbFinished = false;
+    mbImageFeaturesReady = false;
+    mbCurrentFrameFeaturesReady = false;
+    mnImCounter = 0;
+
+    InitializeCSVLogger();
+
+    cout << "Data Collecting Module Initialized" << endl;
 
 }
 
@@ -33,21 +47,12 @@ void DataCollecting::SetLoopCloser(LoopClosing *pLoopCloser)
     mpLoopCloser = pLoopCloser;
 }
 
-
-void DataCollecting::InitializeCSVLogger()
-{
-    // TODO
-}
-
 void DataCollecting::Run()
 {
     // Initialize the data collector
-    mbFinished = false;
-    mbImageFeaturesReady = false;
-    mbCurrentFrameFeaturesReady = false;
-    mnImCounter = 0;
+    cout << "Data Collecting Module Running" << endl;
 
-    usleep(0.03*1000*1000);
+    usleep(0.1*1000*1000);
 
     while(1)
     {
@@ -58,49 +63,68 @@ void DataCollecting::Run()
         }
         if(mbCurrentFrameFeaturesReady)
         {
-            //CalculateCurrentFrameFeatures();
+            CalculateCurrentFrameFeatures();
         }
 
-
-        cout << "Testing Data Collection." << endl;
+        if (mbImageFeaturesReady && mbCurrentFrameFeaturesReady)
         {
-            unique_lock<mutex> lock(mMutexImageTimeStamp);
-            cout << "Current Time Stamp: " << setprecision(10) << mTimeStamp << endl; // prints 10 decimals
-        }
-        {
-            unique_lock<mutex> lock(mMutexImageCounter);
-            cout << "Current Image Counter: " << mnImCounter << endl; //
+            WriteRowCSVLogger();
         }
 
-        {
-            unique_lock<mutex> lock(mMutexImageStatistics);
-            //if(mbImageFeaturesReady)
-            if(false)
-            {
-                cout << "Current Image Statistics: " << endl;
-                cout << "Brightness:" << setprecision(5) << mdBrightness << endl; // prints 10 decimals
-                cout << "Contrast:" << setprecision(5) << mdContrast << endl; // prints 10 decimals
-                cout << "Entropy:" << setprecision(5) << mdEntropy << endl; // prints 10 decimals
-            }
-        }
 
-        {
-            unique_lock<mutex> lock(mMutexCurrentFrameFeatures);
-            cout << "Current Frame Features: " << endl;
-            cout << "Tracking Mode:" << mnTrackMode << endl;
-            cout << "Matched Inliers" <<  mnMatchedInlier << endl;
-            //if(mbCurrentFrameFeaturesReady)
-            if(false)
-            {
-                cout << "Current Frame Features: " << endl;
-                cout << "Number of Key Points:" << mnkeypoints << endl; // prints 10 decimals
-                cout << "Avg Mappoint Depth:" << setprecision(5) << mfMapPointAvgMinDepth << endl; // prints 10 decimals
-                cout << "Var Mappoint Depth:" << setprecision(5) << mfMapPointVarMinDepth << endl; // prints 10 decimals
-            }
-        }
-        cout << endl;
+//        cout << "Testing Data Collection." << endl;
+//        {
+//            unique_lock<mutex> lock(mMutexImageTimeStamp);
+//            cout << "Current Time Stamp: " << setprecision(10) << mTimeStamp << endl; // prints 10 decimals
+//        }
+//        {
+//            unique_lock<mutex> lock(mMutexImageCounter);
+//            cout << "Current Image Counter: " << mnImCounter << endl; //
+//        }
+//
+//        {
+//            unique_lock<mutex> lock(mMutexImageFeatures);
+//            if(mbImageFeaturesReady)
+//            {
+//                cout << "Current Image Features: " << endl;
+//                cout << "Brightness:" << setprecision(5) << mdBrightness << endl; // prints 10 decimals
+//                cout << "Contrast:" << setprecision(5) << mdContrast << endl; // prints 10 decimals
+//                cout << "Entropy:" << setprecision(5) << mdEntropy << endl; // prints 10 decimals
+//            }
+//        }
+//
+//        {
+//            cout << "Current Frame Features: " << endl;
+//            {
+//                unique_lock<mutex> lock(mMutexCurrentFrameTrackMode);
+//                cout << "Track Mode: " <<  mnTrackMode << endl;
+//            }
+//            {
+//                unique_lock<mutex> lock(mMutexCurrentFrameInlier);
+//                cout << "Matched Inliers: " <<  mnMatchedInlier << endl;
+//            }
+//        }
+//        {
+//            unique_lock<mutex> lock(mMutexCurrentFrameFeatures);
+//            if(mbCurrentFrameFeaturesReady)
+//            {
+//                cout << "Current Frame Features: " << endl;
+//                cout << "Number of Key Points:" << mnkeypoints << endl; // prints 10 decimals
+//
+//            }
+//        }
+//        {
+//            unique_lock<mutex> lock(mMutexCurrentFrameMapPointDepth);
+//            if(mbCurrentFrameFeaturesReady)
+//            {
+//                cout << "Avg Mappoint Depth:" << setprecision(5) << mfMapPointAvgMinDepth << endl; // prints 10 decimals
+//                cout << "Var Mappoint Depth:" << setprecision(5) << mfMapPointVarMinDepth << endl; // prints 10 decimals
+//            }
+//
+//        }
+//        cout << endl;
 
-        usleep(0.03*1000*1000);
+        usleep(0.033*1000*1000);
     }
 }
 
@@ -117,7 +141,7 @@ void DataCollecting::CollectImageTimeStamp(const double &timestamp)
 {
     // TODO
     unique_lock<mutex> lock(mMutexImageTimeStamp);
-    mTimeStamp = timestamp;
+    mdTimeStamp = timestamp;
 }
 
 void DataCollecting::CollectImageFileName(string &filename)
@@ -140,7 +164,9 @@ void DataCollecting::CollectImagePixel(cv::Mat &imGray)
     {
         unique_lock<mutex> lock2(mMutexImageCounter);
         mnImCounter ++;
-    };
+    }
+    // update the data ready flag
+    mbImageFeaturesReady = true;
 
 }
 
@@ -148,7 +174,6 @@ void DataCollecting::CollectImagePixel(cv::Mat &imGray)
 void DataCollecting::CollectCurrentFrame(const Frame &frame)
 {
     unique_lock<mutex> lock(mMutexCurrentFrame);
-    //mCurrentFrame = Frame(frame);
     mCurrentFrame = frame;
     mbCurrentFrameFeaturesReady = true;
 }
@@ -198,6 +223,27 @@ void DataCollecting::CollectCurrentFrameMatchedInlier(const int &nMatchedInlier)
     mnMatchedInlier = nMatchedInlier;
 }
 
+void DataCollecting::CollectCurrentFrameMapPointDepth(const Frame &frame)
+{
+    unique_lock<mutex> lock(mMutexCurrentFrameMapPointDepth);
+    vector<float> vMapPointMinDepth;
+    for (int i = 0; i < frame.N; i++)
+    {
+        // If current frame i-th map point is not Null
+        if (frame.mvpMapPoints[i])
+            vMapPointMinDepth.push_back(frame.mvpMapPoints[i]->GetMinDistanceInvariance());
+    }
+    // Calculate the mean
+    mfMapPointAvgMinDepth = accumulate(vMapPointMinDepth.begin(), vMapPointMinDepth.end(), 0.0) / vMapPointMinDepth.size();
+    // Calculate the variance
+    float sum_of_squares = 0;
+    for (auto num : vMapPointMinDepth) 
+    {
+        sum_of_squares += pow(num - mfMapPointAvgMinDepth, 2);
+    }
+    mfMapPointVarMinDepth = sum_of_squares / vMapPointMinDepth.size();
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // END: Methods to collect features from ORB-SLAM3
@@ -237,7 +283,7 @@ double DataCollecting::CalculateImageEntropy(const cv::Mat& image)
 void DataCollecting::CalculateImageFeatures()
 {
     unique_lock<mutex> lock1(mMutexImagePixel);
-    unique_lock<mutex> lock2(mMutexImageStatistics);
+    unique_lock<mutex> lock2(mMutexImageFeatures);
     if (mImGrey.empty())
     {
         cout << "Failed to load image." << endl;
@@ -251,79 +297,31 @@ void DataCollecting::CalculateImageFeatures()
         mdContrast = stddevValue[0];
         // calculate the entropy
         mdEntropy = CalculateImageEntropy(mImGrey);
-        // update the data ready flag
-        mbImageFeaturesReady = true;
     }
 
-}
-
-
-float DataCollecting::CalculateMapPointDepth(Frame frame)
-{
-    vector<float> vMapPointMinDepth;
-    for (int i = 0; i < frame.N; i++)
-    {
-        // If current frame i-th key point is not Null  --> it is also a map point
-        if (mCurrentFrame.mvpMapPoints[i])
-        {
-            // cout << "Mean - MinDepth: " << mCurrentFrame.mvpMapPoints[i]->GetMinDistanceInvariance() << endl;
-            vMapPointMinDepth.push_back(mCurrentFrame.mvpMapPoints[i]->GetMinDistanceInvariance());
-            //vMapPointMaxDepth.push_back(mCurrentFrame.mvpMapPoints[i]->GetMaxDistanceInvariance());
-        }
-    }
-    // Calculate the mean
-    mfMapPointAvgMinDepth = accumulate(vMapPointMinDepth.begin(), vMapPointMinDepth.end(), 0.0) / vMapPointMinDepth.size();
-    // Calculate the variance
-    float sum_of_squares = 0;
-    for (auto num : vMapPointMinDepth) 
-    {
-        sum_of_squares += pow(num - mfMapPointAvgMinDepth, 2);
-    }
-    mfMapPointVarMinDepth = sum_of_squares / vMapPointMinDepth.size();
 }
 
 
 void DataCollecting::CalculateCurrentFrameFeatures()
 {
-    unique_lock<mutex> lock1(mMutexCurrentFrame);
+    unique_lock<mutex> lock1(mMutexCurrentFrame); 
     if(mbCurrentFrameFeaturesReady)
     {
         unique_lock<mutex> lock2(mMutexCurrentFrameFeatures);
-        // TODO
-        // 1. number of keypoints
         mnkeypoints = mCurrentFrame.N;
-        // 2. average mappoint depth
-        // 3. variance of the mappoint depth
-        CalculateMapPointDepth(mCurrentFrame);
     }
 }
 
-//void DataCollecting::CollectFrameLaplacian()
-//{
-//    // TODO
-//}
-//
-//void DataCollecting::CollectFrameOriginalKeypointNumber()
-//{
-//    // TODO
-//    // Find the number of keypoints with the initial threshold
-//}
-//
-//void DataCollecting::CollectFrameFinalKeypointNumber()
-//{
-//    // TODO
-//    // Find the number of keypoints with the final threshold
-//}
+
+
 //
 //void DataCollecting::CollectFrameFinalKeypointDistribution()
 //{
 //    // TODO
 //}
 //
-//void DataCollecting::CollectInliers()
-//{
-//    // TODO
-//}
+
+
 //
 //void DataCollecting::CollectLocalBAVisualError()
 //{
@@ -353,11 +351,127 @@ void DataCollecting::CalculateCurrentFrameFeatures()
 //////////////////////////////////////////////////////////////////////////
 
 
-void DataCollecting::Release()
+void DataCollecting::RequestFinish()
 {
     // TODO
+    mFileLogger.close();
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+// START: Methods to save features in .CSV
+//////////////////////////////////////////////////////////////////////////
+
+void DataCollecting::CollectCurrentTime()
+{
+    // Get the current time
+    std::time_t currentTime = std::time(nullptr);
+
+    // Convert the time to a string
+    std::tm* now = std::localtime(&currentTime);
+
+    // Format the date and time string
+    std::ostringstream oss;
+    oss << std::put_time(now, "%y%m%d_%H%M%S");
+    msCurrentTime = oss.str();
+}
+
+void DataCollecting::InitializeCSVLogger()
+{
+    CollectCurrentTime();
+    msCSVFileName = msSeqName + "_" + msCurrentTime + ".csv";
+
+    // Open the CSV file for writing
+    mFileLogger.open(msCSVFileName);
+
+    // Write the first row with column names
+    if (!mFileLogger.is_open()) 
+    {
+        std::cerr << "Unable to open file: " << msCSVFileName << std::endl;
+    }
+    else
+    {
+        // Write column names
+        for (const auto& columnName : mvsColumnFeatureNames)
+        {
+            mFileLogger << columnName << ",";
+        }
+        mFileLogger << endl;
+    }
+}
+
+
+void DataCollecting::WriteRowCSVLogger()
+{
+    if (!mFileLogger.is_open())
+    {
+        std::cerr << "Unable to open file: " << msCSVFileName << std::endl;
+    }
+    else
+    {
+        {
+            unique_lock<mutex> lock(mMutexImageCounter);
+            mFileLogger << mnImCounter << ", ";
+        }
+        {
+            unique_lock<mutex> lock(mMutexImageTimeStamp);
+            mFileLogger << mdTimeStamp << ", ";
+        }
+        {
+            unique_lock<mutex> lock(mMutexImageFileName);
+            mFileLogger << msImgFileName;
+        }
+
+        if(mbImageFeaturesReady)
+        {
+            {
+                unique_lock<mutex> lock(mMutexImageFeatures);
+                mFileLogger << ", " << mdBrightness << ", " << mdContrast << ", " << mdEntropy;
+            }
+        }
+
+        if(mbCurrentFrameFeaturesReady)
+        {
+            {
+                unique_lock<mutex> lock(mMutexCurrentFrameMapPointDepth);
+                mFileLogger  << ", " << mfMapPointAvgMinDepth << ", " << mfMapPointVarMinDepth << ", ";
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFrameTrackMode);
+                mFileLogger << mnTrackMode << ", ";
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFramePrePOOutlier);
+                mFileLogger << mnPrePOOutlier << ", ";
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFramePrePOKeyMapLoss);
+                mFileLogger << mnPrePOKeyMapLoss << ", ";
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFrameInlier);
+                mFileLogger << mnInlier << ", ";
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFramePostPOOutlier);
+                mFileLogger << mnPostPOOutlier << ", ";
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFramePostPOKeyMapLoss);
+                mFileLogger << mnPostPOKeyMapLoss << ", ";
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFrameMatchedInlier);
+                mFileLogger << mnMatchedInlier;
+            }
+        }
+        
+        mFileLogger << endl;
+    }
 }
 
 
 // End of the ORBSLAM3 namespace
 }
+
+

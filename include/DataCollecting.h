@@ -5,12 +5,19 @@
 #ifndef ORB_SLAM3_DATACOLLECTING_H
 #define ORB_SLAM3_DATACOLLECTING_H
 
-#include<unistd.h>
-#include<stdio.h>
-#include<stdlib.h>
-#include<string>
-#include<thread>
-#include<opencv2/core/core.hpp>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <sstream>
+
+#include <iomanip>
+#include <ctime>
+
+#include <thread>
+#include <cmath>
+#include <numeric>
+#include <opencv2/core/core.hpp>
 
 #include "Tracking.h"
 #include "LocalMapping.h"
@@ -33,17 +40,13 @@ public:
     DataCollecting(System* pSys, Atlas* pAtlas, const float bMonocular, bool bInertial, const string &_strSeqName=std::string());
 
     void SetTracker(Tracking* pTracker);
-
     void SetLocalMapper(LocalMapping* pLocalMapper);
-
     void SetLoopCloser(LoopClosing* pLoopCloser);
-
-    void InitializeCSVLogger();
 
     // Main function
     void Run();
 
-    void Release();
+    void RequestFinish();
 
     // Public functions to collect data
     void CollectImageTimeStamp(const double &timestamp);
@@ -58,10 +61,10 @@ public:
     void CollectCurrentFramePostPOOutlier(const int &nPostPOOutlier);
     void CollectCurrentFramePostPOKeyMapLoss(const int &nPostPOKeyMapLoss);
     void CollectCurrentFrameMatchedInlier(const int &nMatchedInlier);
+    void CollectCurrentFrameMapPointDepth(const Frame &frame);
     //void CollectCurrentFrame;
     //void CollectCurrentKeyFrame(KeyFrame currentKeyFrame);
     
-
 
 protected:
 
@@ -77,11 +80,29 @@ protected:
     LocalMapping* mpLocalMapper;
     LoopClosing* mpLoopCloser;
 
+    // Settings of the .csv file
+    std::ofstream mFileLogger;
+    void CollectCurrentTime();
+    void InitializeCSVLogger();
+    void WriteRowCSVLogger();
+    std::string msSeqName;
+    std::string msCurrentTime;
+    // Declare the mFileLogger as an reference using the & operator
+    // So that I can copy the actual ofstream to it.
+    std::ofstream *mpFileLogger;
+    std::string msCSVFileName;
+    std::vector<std::string> mvsColumnFeatureNames = {"Counter", "TimeStamp", "ImgFileName",\
+                                                   "Brightness", "Contrast", "Entropy",\
+                                                   "AvgMPDepth", "VarMPDepth", \
+                                                   "TrackMode", "PrePOOutlier", "PrePOKeyMapLoss",\
+                                                   "Inlier", "PostPOOutlier", "PostPOKeyMapLoss", "MatchedInlier"};
+
     // Mutexs for locks
     std::mutex mMutexImageTimeStamp;
     std::mutex mMutexImageFileName;
     std::mutex mMutexImageCounter;
     std::mutex mMutexImagePixel;
+    std::mutex mMutexImageFeatures;
     
     std::mutex mMutexCurrentFrame;
     std::mutex mMutexCurrentFrameTrackMode;
@@ -91,11 +112,9 @@ protected:
     std::mutex mMutexCurrentFramePostPOOutlier;
     std::mutex mMutexCurrentFramePostPOKeyMapLoss;
     std::mutex mMutexCurrentFrameMatchedInlier;
+    std::mutex mMutexCurrentFrameMapPointDepth;
     std::mutex mMutexCurrentFrameFeatures;
     //std::mutex mMutex;
-    
-    
-    std::mutex mMutexImageStatistics;
 
 
     // binary flags for data collection status
@@ -106,7 +125,7 @@ protected:
 
     // member variables for data collection
     // input features
-    double mTimeStamp;
+    double mdTimeStamp;
     string msImgFileName;
     int mnImCounter;
     cv::Mat mImGrey;
@@ -127,13 +146,13 @@ protected:
     int mnMatchedInlier;
 
     Frame mCurrentFrame;
+    vector<float> mvMapPointMinDepth;
+
     KeyFrame mCurrentKeyFrame;
 
     // Private functions to process the collected data
     double CalculateImageEntropy(const cv::Mat& image);
     void CalculateImageFeatures();
-
-    float CalculateMapPointDepth(Frame frame);
 
     void CalculateCurrentFrameFeatures();
 
