@@ -1972,10 +1972,17 @@ void Tracking::Track()
                     Verbose::PrintMess("TRACK: Track with motion model", Verbose::VERBOSITY_DEBUG);
                     bOK = TrackWithMotionModel();
                     if(!bOK)
+                    {
                         bOK = TrackReferenceKeyFrame();
                         
+                        // Data Collection: Collect Track Mode - Reference Key Frame
+                        mpDataCollector->CollectCurrentFrameTrackMode(1);
+                    }
+                    else
+                    {
                         // Data Collection: Collect Track Mode - Motion Model
                         mpDataCollector->CollectCurrentFrameTrackMode(0);
+                    }
                 }
 
 
@@ -2291,7 +2298,13 @@ void Tracking::Track()
                 if(mCurrentFrame.mvpMapPoints[i] && mCurrentFrame.mvbOutlier[i])
                     mCurrentFrame.mvpMapPoints[i]=static_cast<MapPoint*>(NULL);
             }
+
+            // Data Collection: Collect the map point depth data
+            mpDataCollector->CollectCurrentFrameMapPointDepth(mCurrentFrame);
+
         }
+
+        
 
         // Reset if the camera get lost soon after initialization
         if(mState==LOST)
