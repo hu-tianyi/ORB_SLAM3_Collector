@@ -479,7 +479,7 @@ Sophus::SE3f System::TrackMonocular(const cv::Mat &im, const double &timestamp, 
 
     Sophus::SE3f Tcw = mpTracker->GrabImageMonocular(imToFeed,timestamp,filename);
 
-    // Collect timestamp
+    // Data Collection: Collect timestamp
     mpDataCollector->CollectImageTimeStamp(timestamp);
     mpDataCollector->CollectImageFileName(filename);
     
@@ -542,6 +542,9 @@ void System::Shutdown()
 
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
+
+    mpDataCollector->RequestFinish();
+
     /*if(mpViewer)
     {
         mpViewer->RequestFinish();
