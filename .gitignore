@@ -94,3 +94,5 @@ borrar/*
 
 */ExecMean.txt
 .vscode/settings.json
+
+*.csv
