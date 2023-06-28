@@ -1621,12 +1621,21 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
 #endif
 
     lastID = mCurrentFrame.mnId;
+
+    // Data Collection: Collect timestamp
+    mpDataCollector->CollectImageTimeStamp(mCurrentFrame.mTimeStamp);
+    //cout << "Image File Name: " << filename << endl;
+    mpDataCollector->CollectImageFileName(filename);
+
+
     Track();
 
     // Collect the current frame
     // After the tracking module run the "Track()" method
     // Copy it to the data collector module
     mpDataCollector->CollectCurrentFrame(mCurrentFrame);
+    //cout << "Current Time" << std::setprecision (20) << timestamp << endl;
+    
 
     return mCurrentFrame.GetPose();
 }
@@ -3047,7 +3056,7 @@ bool Tracking::TrackLocalMap()
                 aux2++;
         }
 
-    // Data Collection: Collect features before Pose Optimization
+    // Data Collection: Collect features after Pose Optimization
     mpDataCollector->CollectCurrentFramePostPOKeyMapLoss(aux1);
     mpDataCollector->CollectCurrentFramePostPOOutlier(aux2);
 
