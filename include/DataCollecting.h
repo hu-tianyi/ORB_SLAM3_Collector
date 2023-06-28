@@ -98,6 +98,8 @@ protected:
                                                    "Inlier", "PostPOOutlier", "PostPOKeyMapLoss", "MatchedInlier"};
 
     // Mutexs for locks
+    std::mutex mMutexNewFrameProcessed;
+
     std::mutex mMutexImageTimeStamp;
     std::mutex mMutexImageFileName;
     std::mutex mMutexImageCounter;
@@ -120,6 +122,7 @@ protected:
     // binary flags for data collection status
     bool mbImageFeaturesReady;
     bool mbCurrentFrameFeaturesReady;
+    bool mbIsNewFrameProcessed;
     // TODO: bool mbLocalMapFeaturesReady;
 
 

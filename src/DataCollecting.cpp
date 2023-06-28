@@ -24,6 +24,7 @@ DataCollecting::DataCollecting(System* pSys, Atlas *pAtlas, const float bMonocul
     mbImageFeaturesReady = false;
     mbCurrentFrameFeaturesReady = false;
     mnImCounter = 0;
+    mbIsNewFrameProcessed = true; // Initialized as it is already processed
 
     InitializeCSVLogger();
 
@@ -57,19 +58,36 @@ void DataCollecting::Run()
     while(1)
     {
         //TODO
-        if(mbImageFeaturesReady)
+        if(!mbIsNewFrameProcessed)
         {
-            CalculateImageFeatures();
-        }
-        if(mbCurrentFrameFeaturesReady)
-        {
-            CalculateCurrentFrameFeatures();
+            auto start = chrono::high_resolution_clock::now();
+            
+            // If the new arrived frame haven't been processed
+            if(mbImageFeaturesReady)
+            {
+                CalculateImageFeatures();
+            }
+            if(mbCurrentFrameFeaturesReady)
+            {
+                CalculateCurrentFrameFeatures();
+            }
+
+            if (mbImageFeaturesReady && mbCurrentFrameFeaturesReady)
+            {
+                WriteRowCSVLogger();
+            }
+
+            {
+                unique_lock<mutex> lock(mMutexNewFrameProcessed);
+                mbIsNewFrameProcessed = true;
+            }
+
+            auto stop = chrono::high_resolution_clock::now();
+            auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+            cout << "Run() elapsed: " << duration.count() << " microseconds" << endl;
+
         }
 
-        if (mbImageFeaturesReady && mbCurrentFrameFeaturesReady)
-        {
-            WriteRowCSVLogger();
-        }
 
 
 //        cout << "Testing Data Collection." << endl;
@@ -124,7 +142,7 @@ void DataCollecting::Run()
 //        }
 //        cout << endl;
 
-        usleep(0.033*1000*1000);
+        usleep(0.01*1000*1000);
     }
 }
 
@@ -159,7 +177,7 @@ void DataCollecting::CollectImagePixel(cv::Mat &imGray)
         //mImGrey = imGray.clone();
 
         //Option2: save the image with reduced resolution (reduced by 1/16 = 1/4*1/4)
-        cv::resize(imGray, mImGrey, cv::Size(), 0.25, 0.25, cv::INTER_LINEAR);
+        cv::resize(imGray, mImGrey, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
     }
     {
         unique_lock<mutex> lock2(mMutexImageCounter);
@@ -167,6 +185,10 @@ void DataCollecting::CollectImagePixel(cv::Mat &imGray)
     }
     // update the data ready flag
     mbImageFeaturesReady = true;
+    {
+        unique_lock<mutex> lock(mMutexNewFrameProcessed);
+        mbIsNewFrameProcessed = false;
+    }
 
 }
 
@@ -355,6 +377,7 @@ void DataCollecting::RequestFinish()
 {
     // TODO
     mFileLogger.close();
+    mbFinished = true;
 
 }
 
@@ -415,7 +438,7 @@ void DataCollecting::WriteRowCSVLogger()
         }
         {
             unique_lock<mutex> lock(mMutexImageTimeStamp);
-            mFileLogger << mdTimeStamp << ", ";
+            mFileLogger << std::setprecision(20) << mdTimeStamp << ", ";
         }
         {
             unique_lock<mutex> lock(mMutexImageFileName);
@@ -426,7 +449,7 @@ void DataCollecting::WriteRowCSVLogger()
         {
             {
                 unique_lock<mutex> lock(mMutexImageFeatures);
-                mFileLogger << ", " << mdBrightness << ", " << mdContrast << ", " << mdEntropy;
+                mFileLogger << ", " << std::setprecision(6) << mdBrightness << ", " << mdContrast << ", " << mdEntropy;
             }
         }
 
