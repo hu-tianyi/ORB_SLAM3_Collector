@@ -485,7 +485,7 @@ void DataCollecting::WriteRowCSVLogger()
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameMatchedInlier);
-                mFileLogger << mnMatchedInlier;
+                mFileLogger << mnMatchedInlier << ", ";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameFeatures);
