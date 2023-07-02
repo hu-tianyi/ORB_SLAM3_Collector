@@ -95,7 +95,8 @@ protected:
                                                    "Brightness", "Contrast", "Entropy",\
                                                    "AvgMPDepth", "VarMPDepth", \
                                                    "TrackMode", "PrePOOutlier", "PrePOKeyMapLoss",\
-                                                   "Inlier", "PostPOOutlier", "PostPOKeyMapLoss", "MatchedInlier"};
+                                                   "Inlier", "PostPOOutlier", "PostPOKeyMapLoss", "MatchedInlier",\
+                                                   "NumberKeyPoints"};
 
     // Mutexs for locks
     std::mutex mMutexNewFrameProcessed;

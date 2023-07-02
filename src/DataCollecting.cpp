@@ -438,7 +438,7 @@ void DataCollecting::WriteRowCSVLogger()
         }
         {
             unique_lock<mutex> lock(mMutexImageTimeStamp);
-            mFileLogger << std::setprecision(20) << mdTimeStamp << ", ";
+            mFileLogger << fixed << setprecision(6) << 1e9*mdTimeStamp << ", ";
         }
         {
             unique_lock<mutex> lock(mMutexImageFileName);
@@ -449,7 +449,7 @@ void DataCollecting::WriteRowCSVLogger()
         {
             {
                 unique_lock<mutex> lock(mMutexImageFeatures);
-                mFileLogger << ", " << std::setprecision(6) << mdBrightness << ", " << mdContrast << ", " << mdEntropy;
+                mFileLogger << ", " << fixed << std::setprecision(6) << mdBrightness << ", " << mdContrast << ", " << mdEntropy;
             }
         }
 
@@ -486,6 +486,10 @@ void DataCollecting::WriteRowCSVLogger()
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameMatchedInlier);
                 mFileLogger << mnMatchedInlier;
+            }
+            {
+                unique_lock<mutex> lock(mMutexCurrentFrameFeatures);
+                mFileLogger << mnkeypoints;
             }
         }
         
