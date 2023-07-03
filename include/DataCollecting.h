@@ -25,6 +25,7 @@
 
 #include "Frame.h"
 #include "KeyFrame.h"
+#include "sophus/se3.hpp"
 
 
 namespace  ORB_SLAM3
@@ -64,7 +65,9 @@ public:
     void CollectCurrentFrameMapPointDepth(const Frame &frame);
     //void CollectCurrentFrame;
     //void CollectCurrentKeyFrame(KeyFrame currentKeyFrame);
-    
+
+    void CollectLocalMappingBANumber(const int num_FixedKF_BA, const int num_OptKF_BA,
+                                                     const int num_MPs_BA,  const int num_edges_BA);
 
 protected:
 
@@ -80,23 +83,25 @@ protected:
     LocalMapping* mpLocalMapper;
     LoopClosing* mpLoopCloser;
 
-    // Settings of the .csv file
-    std::ofstream mFileLogger;
     void CollectCurrentTime();
     void InitializeCSVLogger();
     void WriteRowCSVLogger();
     std::string msSeqName;
     std::string msCurrentTime;
+
     // Declare the mFileLogger as an reference using the & operator
     // So that I can copy the actual ofstream to it.
-    std::ofstream *mpFileLogger;
+    // Settings of the .csv file
+    std::ofstream mFileLogger;
     std::string msCSVFileName;
     std::vector<std::string> mvsColumnFeatureNames = {"Counter", "TimeStamp", "ImgFileName",\
                                                    "Brightness", "Contrast", "Entropy",\
                                                    "AvgMPDepth", "VarMPDepth", \
                                                    "TrackMode", "PrePOOutlier", "PrePOKeyMapLoss",\
                                                    "Inlier", "PostPOOutlier", "PostPOKeyMapLoss", "MatchedInlier",\
-                                                   "NumberKeyPoints"};
+                                                   "NumberKeyPoints", "PX", "PY", "PZ", "Q1", "Q2", "Q3", "Q4", \
+                                                   "DX", "DY", "DZ", "Yaw", "Pitch", "Roll",\
+                                                   "num_FixedKF_BA", "num_OptKF_BA", "num_MPs_BA", "num_edges_BA"};
 
     // Mutexs for locks
     std::mutex mMutexNewFrameProcessed;
@@ -117,6 +122,8 @@ protected:
     std::mutex mMutexCurrentFrameMatchedInlier;
     std::mutex mMutexCurrentFrameMapPointDepth;
     std::mutex mMutexCurrentFrameFeatures;
+
+    std::mutex mMutexLocalMappingBANumber;
     //std::mutex mMutex;
 
 
@@ -138,9 +145,6 @@ protected:
     double mdEntropy;
 
     // tracking features
-    int mnkeypoints;
-    float mfMapPointAvgMinDepth;
-    float mfMapPointVarMinDepth;
     int mnTrackMode;
     int mnPrePOOutlier;
     int mnPrePOKeyMapLoss;
@@ -150,9 +154,27 @@ protected:
     int mnMatchedInlier;
 
     Frame mCurrentFrame;
+    int mnkeypoints;
     vector<float> mvMapPointMinDepth;
+    float mfMapPointAvgMinDepth;
+    float mfMapPointVarMinDepth;
+    // Current camera pose in world reference
+    Sophus::SE3f mTwc;
+    // World Pose
+    Eigen::Quaternionf mQ; //= Twc.unit_quaternion();
+    Eigen::Vector3f mtwc; //= Twc.translation();
+    // Relative Pose
+    Eigen::Quaternionf mRQ;
+    Eigen::Vector3f mRtwc;
+    Eigen::Vector3f mREuler;
 
     KeyFrame mCurrentKeyFrame;
+
+    int mnFixedKF_BA;
+    int mnOptKF_BA;
+    int mnMPs_BA;
+    int mnEdges_BA;
+
 
     // Private functions to process the collected data
     double CalculateImageEntropy(const cv::Mat& image);

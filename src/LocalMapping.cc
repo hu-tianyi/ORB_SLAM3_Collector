@@ -163,7 +163,11 @@ void LocalMapping::Run()
                         b_doneLBA = true;
                     }
 
+                    // Data collection
+                    mpDataCollector->CollectLocalMappingBANumber(num_FixedKF_BA,num_OptKF_BA,num_MPs_BA,num_edges_BA);
+
                 }
+
 #ifdef REGISTER_TIMES
                 std::chrono::steady_clock::time_point time_EndLBA = std::chrono::steady_clock::now();
 

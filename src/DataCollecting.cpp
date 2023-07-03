@@ -266,6 +266,18 @@ void DataCollecting::CollectCurrentFrameMapPointDepth(const Frame &frame)
     mfMapPointVarMinDepth = sum_of_squares / vMapPointMinDepth.size();
 }
 
+void DataCollecting::CollectLocalMappingBANumber(const int num_FixedKF_BA, const int num_OptKF_BA,
+                                                 const int num_MPs_BA,  const int num_edges_BA)
+{
+    unique_lock<mutex> lock(mMutexLocalMappingBANumber);
+    // Fixed Keyframes. Keyframes that see Local MapPoints but that are not Local Keyframes
+    mnFixedKF_BA = num_FixedKF_BA;
+    // Local keyframes
+    mnOptKF_BA = num_OptKF_BA;
+    mnMPs_BA = num_MPs_BA;
+    mnEdges_BA = num_edges_BA;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // END: Methods to collect features from ORB-SLAM3
@@ -331,6 +343,18 @@ void DataCollecting::CalculateCurrentFrameFeatures()
     {
         unique_lock<mutex> lock2(mMutexCurrentFrameFeatures);
         mnkeypoints = mCurrentFrame.N;
+        // current camera pose in world reference
+        Sophus::SE3f currentTwc = mCurrentFrame.GetPose().inverse();
+        // get current pose
+        mQ = currentTwc.unit_quaternion();
+        mtwc = currentTwc.translation();
+        // calculate relative pose
+        Sophus::SE3f currentRelativePose = mTwc.inverse() * currentTwc;
+        Eigen::Matrix3f rotationMatrix = currentRelativePose.rotationMatrix();
+        mREuler = rotationMatrix.eulerAngles(2, 1, 0); // ZYX convention
+        mRtwc = currentRelativePose.translation();
+        // update current camera pose
+        mTwc = currentTwc;
     }
 }
 
@@ -434,11 +458,11 @@ void DataCollecting::WriteRowCSVLogger()
     {
         {
             unique_lock<mutex> lock(mMutexImageCounter);
-            mFileLogger << mnImCounter << ", ";
+            mFileLogger << mnImCounter << ",";
         }
         {
             unique_lock<mutex> lock(mMutexImageTimeStamp);
-            mFileLogger << fixed << setprecision(6) << 1e9*mdTimeStamp << ", ";
+            mFileLogger << fixed << setprecision(6) << 1e9*mdTimeStamp << ",";
         }
         {
             unique_lock<mutex> lock(mMutexImageFileName);
@@ -449,7 +473,7 @@ void DataCollecting::WriteRowCSVLogger()
         {
             {
                 unique_lock<mutex> lock(mMutexImageFeatures);
-                mFileLogger << ", " << fixed << std::setprecision(6) << mdBrightness << ", " << mdContrast << ", " << mdEntropy;
+                mFileLogger << "," << fixed << std::setprecision(6) << mdBrightness << "," << mdContrast << "," << mdEntropy;
             }
         }
 
@@ -457,40 +481,49 @@ void DataCollecting::WriteRowCSVLogger()
         {
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameMapPointDepth);
-                mFileLogger  << ", " << mfMapPointAvgMinDepth << ", " << mfMapPointVarMinDepth << ", ";
+                mFileLogger  << "," << mfMapPointAvgMinDepth << "," << mfMapPointVarMinDepth << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameTrackMode);
-                mFileLogger << mnTrackMode << ", ";
+                mFileLogger << mnTrackMode << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFramePrePOOutlier);
-                mFileLogger << mnPrePOOutlier << ", ";
+                mFileLogger << mnPrePOOutlier << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFramePrePOKeyMapLoss);
-                mFileLogger << mnPrePOKeyMapLoss << ", ";
+                mFileLogger << mnPrePOKeyMapLoss << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameInlier);
-                mFileLogger << mnInlier << ", ";
+                mFileLogger << mnInlier << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFramePostPOOutlier);
-                mFileLogger << mnPostPOOutlier << ", ";
+                mFileLogger << mnPostPOOutlier << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFramePostPOKeyMapLoss);
-                mFileLogger << mnPostPOKeyMapLoss << ", ";
+                mFileLogger << mnPostPOKeyMapLoss << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameMatchedInlier);
-                mFileLogger << mnMatchedInlier << ", ";
+                mFileLogger << mnMatchedInlier << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameFeatures);
-                mFileLogger << mnkeypoints;
+                mFileLogger << mnkeypoints << ",";
+                mFileLogger << setprecision(9) << mtwc(0) << "," << mtwc(1) << "," << mtwc(2) << ",";
+                mFileLogger << mQ.x() << "," << mQ.y() << "," << mQ.z() << "," << mQ.w() << ",";
+                mFileLogger << mRtwc(0) << "," << mRtwc(1) << "," << mRtwc(2) << ",";
+                mFileLogger << mREuler(0) << "," << mREuler(1) << "," << mREuler(2) << ",";
             }
+            {
+                unique_lock<mutex> lock(mMutexLocalMappingBANumber);
+                mFileLogger << mnFixedKF_BA << "," << mnOptKF_BA << "," << mnMPs_BA << "," << mnEdges_BA;
+            }
+
         }
         
         mFileLogger << endl;
