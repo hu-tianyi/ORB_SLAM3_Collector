@@ -5992,6 +5992,7 @@ void Optimizer::GlobalBundleAdjustemnt(Map* pMap, DataCollecting *pDataCollector
 {
     vector<KeyFrame*> vpKFs = pMap->GetAllKeyFrames();
     vector<MapPoint*> vpMP = pMap->GetAllMapPoints();
+    //BundleAdjustment(vpKFs,vpMP,nIterations,pbStopFlag, nLoopKF, bRobust);
     BundleAdjustment(vpKFs,vpMP,pDataCollector,nIterations,pbStopFlag, nLoopKF, bRobust);
 }
 
