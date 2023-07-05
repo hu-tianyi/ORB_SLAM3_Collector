@@ -171,15 +171,16 @@ void DataCollecting::CollectImageFileName(string &filename)
     msImgFileName = filename;
 }
 
-void DataCollecting::CollectImagePixel(cv::Mat &imGray)
+void DataCollecting::CollectImagePixel(cv::Mat &imGrey)
 {
     {
         unique_lock<mutex> lock1(mMutexImagePixel);
         //Option1: save the image with the same resolution
-        //mImGrey = imGray.clone();
+        mImGrey = imGrey.clone();
 
         //Option2: save the image with reduced resolution (reduced by 1/16 = 1/4*1/4)
-        cv::resize(imGray, mImGrey, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
+        //cv::resize(imGrey, mImGrey, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
+        // Instead, reduce the image resolution later at the calculation step
     }
     {
         unique_lock<mutex> lock2(mMutexImageCounter);
@@ -339,6 +340,7 @@ void DataCollecting::CalculateImageFeatures()
     }
     else
     {
+        cv::resize(mImGrey, mImGrey, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
         cv::Scalar meanValue, stddevValue;
         // calculate the brightness and contrast
         cv::meanStdDev(mImGrey, meanValue, stddevValue);

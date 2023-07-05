@@ -52,7 +52,7 @@ public:
     // Public functions to collect data
     void CollectImageTimeStamp(const double &timestamp);
     void CollectImageFileName(string &filename);
-    void CollectImagePixel(cv::Mat &imGray);
+    void CollectImagePixel(cv::Mat &imGrey);
 
     void CollectCurrentFrame(const Frame &frame);
     void CollectCurrentFrameTrackMode(const int &bTrackMode);
