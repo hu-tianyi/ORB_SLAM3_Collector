@@ -287,6 +287,12 @@ void DataCollecting::CollectLocalMappingBAOptimizer(const float fLocalBAVisualEr
     mnLocalBA ++;
 }
 
+void DataCollecting::CollectLoopClosureBAOptimizer(const float fGlobalBAVisualError)
+{
+    unique_lock<mutex> lock(mMutexLoopClosureBAOptimizer);
+    mfGlobalBAVisualError = fGlobalBAVisualError;
+    mnGlobalBA ++;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // END: Methods to collect features from ORB-SLAM3
@@ -534,7 +540,11 @@ void DataCollecting::WriteRowCSVLogger()
             }
             {
                 unique_lock<mutex> lock(mMutexLocalMappingBAOptimizer);
-                mFileLogger << mnLocalBA << "," << mfLocalBAVisualError;
+                mFileLogger << mnLocalBA << "," << mfLocalBAVisualError << ",";
+            }
+            {
+                unique_lock<mutex> lock(mMutexLoopClosureBAOptimizer);
+                mFileLogger << mnGlobalBA << "," << mfGlobalBAVisualError;
             }
 
         }

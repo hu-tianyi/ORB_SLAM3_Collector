@@ -69,6 +69,7 @@ public:
     void CollectLocalMappingBANumber(const int num_FixedKF_BA, const int num_OptKF_BA,
                                                      const int num_MPs_BA,  const int num_edges_BA);
     void CollectLocalMappingBAOptimizer(const float fLocalBAVisualError);
+    void CollectLoopClosureBAOptimizer(const float fGlobalBAVisualError);
 
 protected:
 
@@ -103,7 +104,7 @@ protected:
                                                    "NumberKeyPoints", "PX", "PY", "PZ", "Q1", "Q2", "Q3", "Q4", \
                                                    "DX", "DY", "DZ", "Yaw", "Pitch", "Roll",\
                                                    "num_FixedKF_BA", "num_OptKF_BA", "num_MPs_BA", "num_edges_BA", \
-                                                   "num_local_BA", "local_visual_BA_Err"};
+                                                   "num_local_BA", "local_visual_BA_Err", "num_Global_BA", "global_visual_BA_Err"};
 
     // Mutexs for locks
     std::mutex mMutexNewFrameProcessed;
@@ -127,6 +128,7 @@ protected:
 
     std::mutex mMutexLocalMappingBANumber;
     std::mutex mMutexLocalMappingBAOptimizer;
+    std::mutex mMutexLoopClosureBAOptimizer;
     //std::mutex mMutex;
 
 
@@ -180,6 +182,9 @@ protected:
 
     int mnLocalBA;
     float mfLocalBAVisualError;
+
+    int mnGlobalBA;
+    float mfGlobalBAVisualError;
 
 
     // Private functions to process the collected data
