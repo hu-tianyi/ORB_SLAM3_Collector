@@ -85,8 +85,8 @@ void DataCollecting::Run()
             }
 
             auto stop = chrono::high_resolution_clock::now();
-            auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-            cout << "Run() elapsed: " << duration.count() << " microseconds" << endl;
+            mfDuration = chrono::duration_cast<chrono::microseconds>(stop - start).count();
+            cout << "Run() elapsed: " << mfDuration << " microseconds" << endl;
 
         }
 
@@ -544,7 +544,10 @@ void DataCollecting::WriteRowCSVLogger()
             }
             {
                 unique_lock<mutex> lock(mMutexLoopClosureBAOptimizer);
-                mFileLogger << mnGlobalBA << "," << mfGlobalBAVisualError;
+                mFileLogger << mnGlobalBA << "," << mfGlobalBAVisualError << ",";
+            }
+            {
+                mFileLogger << mfDuration;
             }
 
         }

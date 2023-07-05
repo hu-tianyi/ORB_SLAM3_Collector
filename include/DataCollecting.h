@@ -193,6 +193,7 @@ protected:
 
     void CalculateCurrentFrameFeatures();
 
+    float mfDuration;
 };
 
 
