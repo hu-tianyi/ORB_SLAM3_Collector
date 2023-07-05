@@ -26,6 +26,8 @@ DataCollecting::DataCollecting(System* pSys, Atlas *pAtlas, const float bMonocul
     mnImCounter = 0;
     mbIsNewFrameProcessed = true; // Initialized as it is already processed
 
+    mnLocalBA = 0;
+
     InitializeCSVLogger();
 
     cout << "Data Collecting Module Initialized" << endl;
@@ -278,6 +280,13 @@ void DataCollecting::CollectLocalMappingBANumber(const int num_FixedKF_BA, const
     mnEdges_BA = num_edges_BA;
 }
 
+void DataCollecting::CollectLocalMappingBAOptimizer(const float fLocalBAVisualError)
+{
+    unique_lock<mutex> lock(mMutexLocalMappingBAOptimizer);
+    mfLocalBAVisualError = fLocalBAVisualError;
+    mnLocalBA ++;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // END: Methods to collect features from ORB-SLAM3
@@ -521,7 +530,11 @@ void DataCollecting::WriteRowCSVLogger()
             }
             {
                 unique_lock<mutex> lock(mMutexLocalMappingBANumber);
-                mFileLogger << mnFixedKF_BA << "," << mnOptKF_BA << "," << mnMPs_BA << "," << mnEdges_BA;
+                mFileLogger << mnFixedKF_BA << "," << mnOptKF_BA << "," << mnMPs_BA << "," << mnEdges_BA << ",";
+            }
+            {
+                unique_lock<mutex> lock(mMutexLocalMappingBAOptimizer);
+                mFileLogger << mnLocalBA << "," << mfLocalBAVisualError;
             }
 
         }

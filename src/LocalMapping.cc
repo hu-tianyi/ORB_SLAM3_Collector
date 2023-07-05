@@ -159,7 +159,12 @@ void LocalMapping::Run()
                     }
                     else
                     {
-                        Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpCurrentKeyFrame->GetMap(),num_FixedKF_BA,num_OptKF_BA,num_MPs_BA,num_edges_BA);
+                        // Data collection
+                        // comment out the original Optimizer::LocalBundleAdjustment
+                        //Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpCurrentKeyFrame->GetMap(),num_FixedKF_BA,num_OptKF_BA,num_MPs_BA,num_edges_BA);
+                        // use the one has overloaded with data collector
+                        Optimizer::LocalBundleAdjustment(mpCurrentKeyFrame,&mbAbortBA, mpCurrentKeyFrame->GetMap(),\
+                                                         num_FixedKF_BA,num_OptKF_BA,num_MPs_BA,num_edges_BA, mpDataCollector);
                         b_doneLBA = true;
                     }
 
