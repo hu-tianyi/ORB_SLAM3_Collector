@@ -104,7 +104,8 @@ protected:
                                                    "NumberKeyPoints", "PX", "PY", "PZ", "Q1", "Q2", "Q3", "Q4", \
                                                    "DX", "DY", "DZ", "Yaw", "Pitch", "Roll",\
                                                    "num_FixedKF_BA", "num_OptKF_BA", "num_MPs_BA", "num_edges_BA", \
-                                                   "num_local_BA", "local_visual_BA_Err", "num_Global_BA", "global_visual_BA_Err"};
+                                                   "num_local_BA","local_visual_BA_Err","num_Global_BA","global_visual_BA_Err",
+                                                   "CollectionLatency"};
 
     // Mutexs for locks
     std::mutex mMutexNewFrameProcessed;
