@@ -69,6 +69,8 @@ build/
 
 lib/
 
+datasets/
+
 cmake_modules/
 cmake-build-debug/
 
@@ -91,5 +93,6 @@ my_settings.txt
 borrar/*
 
 */ExecMean.txt
+.vscode/settings.json
 
-/datasets
+*.csv

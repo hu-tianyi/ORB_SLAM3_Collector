@@ -213,15 +213,29 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mpLoopCloser = new LoopClosing(mpAtlas, mpKeyFrameDatabase, mpVocabulary, mSensor!=MONOCULAR, activeLC); // mSensor!=MONOCULAR);
     mptLoopClosing = new thread(&ORB_SLAM3::LoopClosing::Run, mpLoopCloser);
 
+    //Initialize the Data Collecting thread and launch
+    mpDataCollector = new DataCollecting(this, mpAtlas, mSensor==MONOCULAR || mSensor==IMU_MONOCULAR,
+                                     mSensor==IMU_MONOCULAR || mSensor==IMU_STEREO || mSensor==IMU_RGBD, strSequence);
+    mptDataCollecting = new thread(&ORB_SLAM3::DataCollecting::Run,mpDataCollector);
+
     //Set pointers between threads
+    //Modified for data collector
     mpTracker->SetLocalMapper(mpLocalMapper);
     mpTracker->SetLoopClosing(mpLoopCloser);
+    mpTracker->SetDataCollector(mpDataCollector);
 
     mpLocalMapper->SetTracker(mpTracker);
     mpLocalMapper->SetLoopCloser(mpLoopCloser);
+    mpLocalMapper->SetDataCollector(mpDataCollector);
 
     mpLoopCloser->SetTracker(mpTracker);
     mpLoopCloser->SetLocalMapper(mpLocalMapper);
+    mpLoopCloser->SetDataCollector(mpDataCollector);
+
+    //Added for Data Collector
+    mpDataCollector->SetTracker(mpTracker);
+    mpDataCollector->SetLocalMapper(mpLocalMapper);
+    mpDataCollector->SetLoopCloser(mpLoopCloser);
 
     //usleep(10*1000*1000);
 
@@ -523,6 +537,9 @@ void System::Shutdown()
 
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
+
+    mpDataCollector->RequestFinish();
+
     /*if(mpViewer)
     {
         mpViewer->RequestFinish();
