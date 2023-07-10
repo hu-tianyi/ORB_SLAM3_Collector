@@ -55,7 +55,7 @@ void DataCollecting::Run()
     // Initialize the data collector
     cout << "Data Collecting Module Running" << endl;
 
-    usleep(0.1*1000*1000);
+    usleep(1*1000*1000);
 
     while(1)
     {
@@ -63,7 +63,7 @@ void DataCollecting::Run()
         if(!mbIsNewFrameProcessed)
         {
             auto start = chrono::high_resolution_clock::now();
-            
+
             // If the new arrived frame haven't been processed
             if(mbImageFeaturesReady)
             {
@@ -89,61 +89,6 @@ void DataCollecting::Run()
             cout << "Run() elapsed: " << mfDuration << " microseconds" << endl;
 
         }
-
-
-
-//        cout << "Testing Data Collection." << endl;
-//        {
-//            unique_lock<mutex> lock(mMutexImageTimeStamp);
-//            cout << "Current Time Stamp: " << setprecision(10) << mTimeStamp << endl; // prints 10 decimals
-//        }
-//        {
-//            unique_lock<mutex> lock(mMutexImageCounter);
-//            cout << "Current Image Counter: " << mnImCounter << endl; //
-//        }
-//
-//        {
-//            unique_lock<mutex> lock(mMutexImageFeatures);
-//            if(mbImageFeaturesReady)
-//            {
-//                cout << "Current Image Features: " << endl;
-//                cout << "Brightness:" << setprecision(5) << mdBrightness << endl; // prints 10 decimals
-//                cout << "Contrast:" << setprecision(5) << mdContrast << endl; // prints 10 decimals
-//                cout << "Entropy:" << setprecision(5) << mdEntropy << endl; // prints 10 decimals
-//            }
-//        }
-//
-//        {
-//            cout << "Current Frame Features: " << endl;
-//            {
-//                unique_lock<mutex> lock(mMutexCurrentFrameTrackMode);
-//                cout << "Track Mode: " <<  mnTrackMode << endl;
-//            }
-//            {
-//                unique_lock<mutex> lock(mMutexCurrentFrameInlier);
-//                cout << "Matched Inliers: " <<  mnMatchedInlier << endl;
-//            }
-//        }
-//        {
-//            unique_lock<mutex> lock(mMutexCurrentFrameFeatures);
-//            if(mbCurrentFrameFeaturesReady)
-//            {
-//                cout << "Current Frame Features: " << endl;
-//                cout << "Number of Key Points:" << mnkeypoints << endl; // prints 10 decimals
-//
-//            }
-//        }
-//        {
-//            unique_lock<mutex> lock(mMutexCurrentFrameMapPointDepth);
-//            if(mbCurrentFrameFeaturesReady)
-//            {
-//                cout << "Avg Mappoint Depth:" << setprecision(5) << mfMapPointAvgMinDepth << endl; // prints 10 decimals
-//                cout << "Var Mappoint Depth:" << setprecision(5) << mfMapPointVarMinDepth << endl; // prints 10 decimals
-//            }
-//
-//        }
-//        cout << endl;
-
         usleep(0.01*1000*1000);
     }
 }
