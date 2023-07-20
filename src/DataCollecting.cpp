@@ -86,7 +86,7 @@ void DataCollecting::Run()
 
             auto stop = chrono::high_resolution_clock::now();
             mfDuration = chrono::duration_cast<chrono::microseconds>(stop - start).count();
-            cout << "Run() elapsed: " << mfDuration << " microseconds" << endl;
+            //cout << "Run() elapsed: " << mfDuration << " microseconds" << endl;
 
         }
 
