@@ -1,0 +1,48 @@
+%YAML:1.0
+#Camera Intrinsics
+Camera.type: "PinHole"
+Camera.fx: 388.2
+Camera.fy: 388.2
+Camera.cx: 319.5
+Camera.cy: 239.5
+Camera.k1: 0.0
+Camera.k2: 0.0
+Camera.p1: 0.0
+Camera.p2: 0.0
+Camera.width: 640
+Camera.height: 480
+Camera.fps: 20.0
+Camera.RGB: 1
+
+#Camera Extrinsics
+Tbc: !!opencv-matrix
+   rows: 4
+   cols: 4
+   dt: f
+   data: [0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+
+#IMU noise
+IMU.NoiseGyro: 0.0025
+IMU.NoiseAcc: 0.025
+IMU.GyroWalk: 8e-04
+IMU.AccWalk: 0.02
+IMU.Frequency: 400
+
+#ORB Extractor
+ORBextractor.nFeatures: 1000
+ORBextractor.scaleFactor: 1.2
+ORBextractor.nLevels: 8
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7
+
+#Viewer
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize: 2
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3
+Viewer.ViewpointX: 0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -3.5
+Viewer.ViewpointF: 500
