@@ -285,7 +285,7 @@ void DataCollecting::CalculateImageFeatures()
     }
     else
     {
-        cv::resize(mImGrey, mImGrey, cv::Size(), 0.25, 0.25, cv::INTER_NEAREST);
+        cv::resize(mImGrey, mImGrey, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST);
         cv::Scalar meanValue, stddevValue;
         // calculate the brightness and contrast
         cv::meanStdDev(mImGrey, meanValue, stddevValue);
@@ -293,6 +293,16 @@ void DataCollecting::CalculateImageFeatures()
         mdContrast = stddevValue[0];
         // calculate the entropy
         mdEntropy = CalculateImageEntropy(mImGrey);
+
+        cv::Mat laplacianImage;
+        cv::Laplacian(mImGrey, laplacianImage, CV_16S, 3);
+        // Since the radius of ORB feature extractor is 16?? Sorry must be odd number
+        cv::Laplacian(mImGrey, laplacianImage, CV_16S, 5);
+        cv::convertScaleAbs(laplacianImage, laplacianImage);
+        //cv::imshow("laplacian", laplacianImage);
+        //cv::waitKey(1);
+        cv::meanStdDev(laplacianImage, meanValue, stddevValue);
+        mdLaplacian = stddevValue[0]; //meanValue[0];
     }
 
 }
@@ -388,7 +398,8 @@ void DataCollecting::CollectCurrentTime()
 void DataCollecting::InitializeCSVLogger()
 {
     CollectCurrentTime();
-    msCSVFileName = msSeqName + "_" + msCurrentTime + ".csv";
+    //msCSVFileName = msSeqName + "_" + msCurrentTime + ".csv";
+    msCSVFileName = "./logs/log.csv";
 
     // Open the CSV file for writing
     mFileLogger.open(msCSVFileName);
@@ -424,18 +435,22 @@ void DataCollecting::WriteRowCSVLogger()
         }
         {
             unique_lock<mutex> lock(mMutexImageTimeStamp);
-            mFileLogger << fixed << setprecision(6) << 1e9*mdTimeStamp << ",";
+            mFileLogger << fixed << setprecision(6) << mdTimeStamp << ","; //1e9*mdTimeStamp << ",";
         }
         {
             unique_lock<mutex> lock(mMutexImageFileName);
-            mFileLogger << msImgFileName;
+            mFileLogger << msImgFileName << ",";
         }
-
+        {
+            unique_lock<mutex> lock(mMutexCurrentFrameTrackMode);
+            mFileLogger << mnTrackMode;
+        }
         if(mbImageFeaturesReady)
         {
             {
                 unique_lock<mutex> lock(mMutexImageFeatures);
-                mFileLogger << "," << fixed << std::setprecision(6) << mdBrightness << "," << mdContrast << "," << mdEntropy;
+                mFileLogger << "," << fixed << std::setprecision(6);
+                mFileLogger << mdBrightness << "," << mdContrast << "," << mdEntropy << "," << mdLaplacian;
             }
         }
 
@@ -444,10 +459,6 @@ void DataCollecting::WriteRowCSVLogger()
             {
                 unique_lock<mutex> lock(mMutexCurrentFrameMapPointDepth);
                 mFileLogger  << "," << mfMapPointAvgMinDepth << "," << mfMapPointVarMinDepth << ",";
-            }
-            {
-                unique_lock<mutex> lock(mMutexCurrentFrameTrackMode);
-                mFileLogger << mnTrackMode << ",";
             }
             {
                 unique_lock<mutex> lock(mMutexCurrentFramePrePOOutlier);
