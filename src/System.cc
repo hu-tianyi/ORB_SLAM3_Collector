@@ -484,6 +484,9 @@ Sophus::SE3f System::TrackMonocular(const cv::Mat &im, const double &timestamp, 
     mTrackedMapPoints = mpTracker->mCurrentFrame.mvpMapPoints;
     mTrackedKeyPointsUn = mpTracker->mCurrentFrame.mvKeysUn;
 
+    // Data Collection: Collect Track Mode - Reference Key Frame
+    mpDataCollector->CollectCurrentFrameTrackMode(mTrackingState);
+
     return Tcw;
 }
 

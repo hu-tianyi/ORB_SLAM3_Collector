@@ -1972,9 +1972,6 @@ void Tracking::Track()
                 {
                     Verbose::PrintMess("TRACK: Track with respect to the reference KF ", Verbose::VERBOSITY_DEBUG);
                     bOK = TrackReferenceKeyFrame();
-
-                    // Data Collection: Collect Track Mode - Reference Key Frame
-                    mpDataCollector->CollectCurrentFrameTrackMode(1);
                 }
                 else
                 {
@@ -1983,14 +1980,6 @@ void Tracking::Track()
                     if(!bOK)
                     {
                         bOK = TrackReferenceKeyFrame();
-                        
-                        // Data Collection: Collect Track Mode - Reference Key Frame
-                        mpDataCollector->CollectCurrentFrameTrackMode(1);
-                    }
-                    else
-                    {
-                        // Data Collection: Collect Track Mode - Motion Model
-                        mpDataCollector->CollectCurrentFrameTrackMode(0);
                     }
                 }
 
@@ -2048,9 +2037,6 @@ void Tracking::Track()
                             Verbose::PrintMess("Track Lost...", Verbose::VERBOSITY_NORMAL);
                             bOK=false;
                         }
-
-                        // Data Collection: Collect Track Mode - Relocalization
-                        mpDataCollector->CollectCurrentFrameTrackMode(2);
                     }
                 }
                 else if (mState == LOST)
