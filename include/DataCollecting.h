@@ -96,12 +96,12 @@ protected:
     // Settings of the .csv file
     std::ofstream mFileLogger;
     std::string msCSVFileName;
-    std::vector<std::string> mvsColumnFeatureNames = {"Counter", "TimeStamp", "ImgFileName",\
-                                                   "Brightness", "Contrast", "Entropy",\
+    std::vector<std::string> mvsColumnFeatureNames = {"Counter", "TimeStamp", "ImgFileName", "TrackMode",\
+                                                   "Brightness", "Contrast", "Entropy", "Laplacian",\
                                                    "AvgMPDepth", "VarMPDepth", \
-                                                   "TrackMode", "PrePOOutlier", "PrePOKeyMapLoss",\
+                                                   "PrePOOutlier", "PrePOKeyMapLoss",\
                                                    "Inlier", "PostPOOutlier", "PostPOKeyMapLoss", "MatchedInlier",\
-                                                   "NumberKeyPoints", "PX", "PY", "PZ", "Q1", "Q2", "Q3", "Q4", \
+                                                   "NumberKeyPoints", "PX", "PY", "PZ", "QX", "QY", "QZ", "QW", \
                                                    "DX", "DY", "DZ", "Yaw", "Pitch", "Roll",\
                                                    "num_FixedKF_BA", "num_OptKF_BA", "num_MPs_BA", "num_edges_BA", \
                                                    "num_local_BA","local_visual_BA_Err","num_Global_BA","global_visual_BA_Err",
@@ -149,6 +149,7 @@ protected:
     double mdBrightness;
     double mdContrast;
     double mdEntropy;
+    double mdLaplacian;
 
     // tracking features
     int mnTrackMode;
