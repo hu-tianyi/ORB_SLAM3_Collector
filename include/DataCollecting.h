@@ -27,6 +27,9 @@
 #include "KeyFrame.h"
 #include "sophus/se3.hpp"
 
+#include <mutex>
+#include <chrono>
+
 
 namespace  ORB_SLAM3
 {
@@ -96,7 +99,7 @@ protected:
     // Settings of the .csv file
     std::ofstream mFileLogger;
     std::string msCSVFileName;
-    std::vector<std::string> mvsColumnFeatureNames = {"Counter", "TimeStamp", "ImgFileName", "TrackMode",\
+    std::vector<std::string> mvsColumnFeatureNames = {"Counter", "TimeStamp", "TrackMode",\
                                                    "Brightness", "Contrast", "Entropy", "Laplacian",\
                                                    "AvgMPDepth", "VarMPDepth", \
                                                    "PrePOOutlier", "PrePOKeyMapLoss",\
@@ -108,29 +111,29 @@ protected:
                                                    "CollectionLatency"};
 
     // Mutexs for locks
-    std::mutex mMutexNewFrameProcessed;
+    std::timed_mutex mMutexNewFrameProcessed;
 
-    std::mutex mMutexImageTimeStamp;
-    std::mutex mMutexImageFileName;
-    std::mutex mMutexImageCounter;
-    std::mutex mMutexImagePixel;
-    std::mutex mMutexImageFeatures;
+    std::timed_mutex mMutexImageTimeStamp;
+    std::timed_mutex mMutexImageFileName;
+    std::timed_mutex mMutexImageCounter;
+    std::timed_mutex mMutexImagePixel;
+    std::timed_mutex mMutexImageFeatures;
     
-    std::mutex mMutexCurrentFrame;
-    std::mutex mMutexCurrentFrameTrackMode;
-    std::mutex mMutexCurrentFramePrePOOutlier;
-    std::mutex mMutexCurrentFramePrePOKeyMapLoss;
-    std::mutex mMutexCurrentFrameInlier;
-    std::mutex mMutexCurrentFramePostPOOutlier;
-    std::mutex mMutexCurrentFramePostPOKeyMapLoss;
-    std::mutex mMutexCurrentFrameMatchedInlier;
-    std::mutex mMutexCurrentFrameMapPointDepth;
-    std::mutex mMutexCurrentFrameFeatures;
+    std::timed_mutex mMutexCurrentFrame;
+    std::timed_mutex mMutexCurrentFrameTrackMode;
+    std::timed_mutex mMutexCurrentFramePrePOOutlier;
+    std::timed_mutex mMutexCurrentFramePrePOKeyMapLoss;
+    std::timed_mutex mMutexCurrentFrameInlier;
+    std::timed_mutex mMutexCurrentFramePostPOOutlier;
+    std::timed_mutex mMutexCurrentFramePostPOKeyMapLoss;
+    std::timed_mutex mMutexCurrentFrameMatchedInlier;
+    std::timed_mutex mMutexCurrentFrameMapPointDepth;
+    std::timed_mutex mMutexCurrentFrameFeatures;
 
-    std::mutex mMutexLocalMappingBANumber;
-    std::mutex mMutexLocalMappingBAOptimizer;
-    std::mutex mMutexLoopClosureBAOptimizer;
-    //std::mutex mMutex;
+    std::timed_mutex mMutexLocalMappingBANumber;
+    std::timed_mutex mMutexLocalMappingBAOptimizer;
+    std::timed_mutex mMutexLoopClosureBAOptimizer;
+    //std::timed_mutex mMutex;
 
 
     // binary flags for data collection status
