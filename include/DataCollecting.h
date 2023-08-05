@@ -47,6 +47,8 @@ public:
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetLoopCloser(LoopClosing* pLoopCloser);
 
+    void InitializeDataCollector();
+
     // Main function
     void Run();
 

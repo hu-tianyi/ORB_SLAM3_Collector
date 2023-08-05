@@ -20,14 +20,7 @@ DataCollecting::DataCollecting(System* pSys, Atlas *pAtlas, const float bMonocul
     mpAtlas = pAtlas;
     msSeqName = _strSeqName;
 
-    mbFinished = false;
-    mbImageFeaturesReady = false;
-    mbCurrentFrameFeaturesReady = false;
-    mnImCounter = 0;
-    mbIsNewFrameProcessed = true; // Initialized as it is already processed
-
-    mnLocalBA = 0;
-
+    InitializeDataCollector();
     InitializeCSVLogger();
 
     cout << "Data Collecting Module Initialized" << endl;
@@ -48,6 +41,44 @@ void DataCollecting::SetLocalMapper(LocalMapping *pLocalMapper)
 void DataCollecting::SetLoopCloser(LoopClosing *pLoopCloser)
 {
     mpLoopCloser = pLoopCloser;
+}
+
+void DataCollecting::InitializeDataCollector()
+{
+    // binary flags for data collection status
+    mbFinished = false;
+    mbImageFeaturesReady = false;
+    mbCurrentFrameFeaturesReady = false;
+    mnImCounter = 0;
+    mbIsNewFrameProcessed = true; // Initialized as it is already processed
+
+    mnLocalBA = 0;
+
+    // member variables for data collection
+    // input features
+    mdTimeStamp = 0.0;
+    msImgFileName = "None";
+    mnImCounter = 0;
+    //cv::Mat mImGrey;
+    mdBrightness = 0.0;
+    mdContrast = 0.0;
+    mdEntropy = 0.0;
+    mdLaplacian = 0.0;
+
+    // tracking features
+    mnTrackMode = 0;
+    mnPrePOOutlier = 0;
+    mnPrePOKeyMapLoss = 0;
+    mnInlier = 0;
+    mnPostPOOutlier = 0;
+    mnPostPOKeyMapLoss = 0;
+    mnMatchedInlier = 0;
+
+    mCurrentFrame.N = 0;
+    mnkeypoints = 0;
+    //vector<float> mvMapPointMinDepth;
+    mfMapPointAvgMinDepth = 0.0;
+    mfMapPointVarMinDepth = 0.0;
 }
 
 void DataCollecting::Run()
@@ -100,11 +131,6 @@ void DataCollecting::Run()
 //////////////////////////////////////////////////////////////////////////
 // TODO: Define methods to collect features from ORB-SLAM3
 //////////////////////////////////////////////////////////////////////////
-
-//void DataCollecting::DefineMethod2CollectFeatures()
-//{
-//    // TODO
-//}
 
 void DataCollecting::CollectImageTimeStamp(const double &timestamp)
 {
@@ -171,10 +197,6 @@ void DataCollecting::CollectImagePixel(cv::Mat &imGrey)
 
 void DataCollecting::CollectCurrentFrame(const Frame &frame)
 {
-//    unique_lock<mutex> lock(mMutexCurrentFrame);
-//    mCurrentFrame = frame;
-//    mbCurrentFrameFeaturesReady = true;
-
     // Try to acquire the timed_mutex with a timeout of 1 milliseconds
     if (mMutexCurrentFrame.try_lock_for(std::chrono::milliseconds(1))) {
         mCurrentFrame = frame;
@@ -184,7 +206,6 @@ void DataCollecting::CollectCurrentFrame(const Frame &frame)
     else {
         std::cout << " failed to acquire the mMutexCurrentFrame within 1 milliseconds." << std::endl;
     }
-
 }
 
 void DataCollecting::CollectCurrentFrameTrackMode(const int &nTrackMode)
@@ -529,7 +550,7 @@ void DataCollecting::InitializeCSVLogger()
     mFileLogger.open(msCSVFileName);
 
     // Write the first row with column names
-    if (!mFileLogger.is_open()) 
+    if (!mFileLogger.is_open())
     {
         std::cerr << "Unable to open file: " << msCSVFileName << std::endl;
     }
@@ -716,11 +737,10 @@ void DataCollecting::WriteRowCSVLogger()
             mFileLogger << mfDuration;
 
         }
-        
+
         mFileLogger << endl;
     }
 }
-
 
 // End of the ORBSLAM3 namespace
 }
