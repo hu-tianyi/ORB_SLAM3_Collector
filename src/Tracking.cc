@@ -1571,6 +1571,12 @@ Sophus::SE3f Tracking::GrabImageRGBD(const cv::Mat &imRGB,const cv::Mat &imD, co
 
 Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &timestamp, string filename)
 {
+    // Need to collect timestamp before collecting img
+    // Data Collection: Collect timestamp
+    mpDataCollector->CollectImageTimeStamp(mCurrentFrame.mTimeStamp);
+    //cout << "Image File Name: " << filename << endl;
+    mpDataCollector->CollectImageFileName(filename);
+
     mImGray = im;
     if(mImGray.channels()==3)
     {
@@ -1621,12 +1627,6 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
 #endif
 
     lastID = mCurrentFrame.mnId;
-
-    // Data Collection: Collect timestamp
-    mpDataCollector->CollectImageTimeStamp(mCurrentFrame.mTimeStamp);
-    //cout << "Image File Name: " << filename << endl;
-    mpDataCollector->CollectImageFileName(filename);
-
 
     Track();
 
