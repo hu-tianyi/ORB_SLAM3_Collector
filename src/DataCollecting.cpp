@@ -85,7 +85,7 @@ void DataCollecting::Run()
 {
     // Initialize the data collector
     cout << "Data Collecting Module Running" << endl;
-
+    // wait for 1 second
     usleep(1*1000*1000);
 
     while(1)
@@ -125,6 +125,7 @@ void DataCollecting::Run()
 
         }
         usleep(0.01*1000*1000);
+        // Wait for 0.01s = 10ms
     }
 }
 
@@ -557,9 +558,20 @@ void DataCollecting::InitializeCSVLogger()
     else
     {
         // Write column names
-        for (const auto& columnName : mvsColumnFeatureNames)
-        {
-            mFileLogger << columnName << ",";
+//        for (const auto& columnName : mvsColumnFeatureNames)
+//        {
+//            mFileLogger << columnName << ",";
+//        }
+//        mFileLogger << endl;
+        size_t totalSize = mvsColumnFeatureNames.size();
+        for (size_t i = 0; i < totalSize; ++i) {
+            const auto& columnName = mvsColumnFeatureNames[i];
+            if (i < totalSize-1){
+                mFileLogger << columnName << ",";
+            }
+            else{
+                mFileLogger << columnName;
+            }
         }
         mFileLogger << endl;
     }
